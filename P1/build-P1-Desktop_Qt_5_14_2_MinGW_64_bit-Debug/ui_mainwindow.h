@@ -197,11 +197,17 @@ public:
 
         dsbNear = new QDoubleSpinBox(gbClipping_2);
         dsbNear->setObjectName(QString::fromUtf8("dsbNear"));
+        dsbNear->setDecimals(2);
+        dsbNear->setMaximum(100.000000000000000);
+        dsbNear->setStepType(QAbstractSpinBox::DefaultStepType);
+        dsbNear->setValue(1.000000000000000);
 
         Clipping->setWidget(0, QFormLayout::FieldRole, dsbNear);
 
         dsbFar = new QDoubleSpinBox(gbClipping_2);
         dsbFar->setObjectName(QString::fromUtf8("dsbFar"));
+        dsbFar->setMaximum(100.000000000000000);
+        dsbFar->setValue(90.000000000000000);
 
         Clipping->setWidget(1, QFormLayout::FieldRole, dsbFar);
 
@@ -221,8 +227,8 @@ public:
         vsFOV->setMinimum(45);
         vsFOV->setMaximum(180);
         vsFOV->setPageStep(10);
-        vsFOV->setValue(45);
-        vsFOV->setSliderPosition(45);
+        vsFOV->setValue(90);
+        vsFOV->setSliderPosition(90);
         vsFOV->setOrientation(Qt::Vertical);
         vsFOV->setInvertedAppearance(false);
         vsFOV->setInvertedControls(false);
@@ -238,6 +244,7 @@ public:
         spFOV->setObjectName(QString::fromUtf8("spFOV"));
         spFOV->setMinimum(45);
         spFOV->setMaximum(180);
+        spFOV->setValue(90);
 
         Slider2->addWidget(spFOV);
 

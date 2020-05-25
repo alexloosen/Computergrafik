@@ -65,15 +65,11 @@ void MyGLWidget::setFar(double value)
 
 void MyGLWidget::setRotationA(int value)
 {
-    float conv = value;
-    conv /= 100;
-    m_Alpha = conv;
+    m_RotationA = value;
 }
 
 void MyGLWidget::setRotationB(int value)
 {
-    float conv = value;
-    conv /= 100;
     this->m_RotationB = value;
 }
 
@@ -122,103 +118,54 @@ void MyGLWidget::initializeGL()
         qDebug() << "GL initialized!";
     }
     glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    struct Vertex
-    {
-        GLfloat position[2];
-        GLfloat color[3];
-        GLfloat tex_pos[2];
-    };
+    float aspectRatio = float(width())/float(height());
+    mProjection.perspective(m_FOV, aspectRatio, m_Near, m_Far);
+    qDebug() << "ProjectionMatrix: " << mProjection;
 
-    Vertex vert1, vert2, vert3, vert4;
+    mCamera.translate(0.f, 0.f, 0.f);
+    qDebug() << "CameraPosition:" << mCamera;
 
-    vert1.position[0] = -0.5f;
-    vert1.position[1] = -0.5f;
-    vert1.color[0] = 1.0f;
-    vert1.color[1] = 0.0f;
-    vert1.color[2] = 0.0f;
-    vert1.tex_pos[0] = 0.0f;
-    vert1.tex_pos[1] = 0.0f;
+    //mModel.translate(1.0f, 1.0f, 1.0f);
+    qDebug() << "ModelMatrix:" << mModel;
 
-    vert2.position[0] = 0.5f;
-    vert2.position[1] = -0.5f;
-    vert2.color[0] = 0.0f;
-    vert2.color[1] = 1.0f;
-    vert2.color[2] = 0.0f;
-    vert2.tex_pos[0] = 0.0f;
-    vert2.tex_pos[1] = 1.0f;
+    mModel.scale(0.9f, 0.9f, 0.9f);
 
-    vert3.position[0] = 0.0f;
-    vert3.position[1] = 0.5f;
-    vert3.color[0] = 0.0f;
-    vert3.color[1] = 0.0f;
-    vert3.color[2] = 1.0f;
-    vert3.tex_pos[0] = 1.0f;
-    vert3.tex_pos[1] = 0.0f;
-
-    vert4.position[0] = 1.0f;
-    vert4.position[1] = 0.5f;
-    vert4.color[0] = 0.0f;
-    vert4.color[1] = 0.0f;
-    vert4.color[2] = 1.0f;
-    vert4.tex_pos[0] = 1.0f;
-    vert4.tex_pos[1] = 1.0f;
-
-    Vertex vert[] {vert1, vert2, vert3, vert4};
-
-    glGenVertexArrays(1, &m_vao);
-    glBindVertexArray(m_vao);
-
-    GLuint data[] = {0, 1, 2, 1, 2, 3};
-    glGenBuffers(1, &m_ibo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW);
-
-    glGenBuffers(1, &m_vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-
-    #define OFS(s, a) reinterpret_cast<void* const>(offsetof(s, a))
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), OFS(Vertex, position));
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), OFS(Vertex, color));
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), OFS(Vertex, tex_pos));
-    #undef OFS
-
-    glBindVertexArray(0);
+    mCamera *= mModel;
 
     QImage texImg;
-    texImg.load("../P1/sample_texture.jpg");
+    texImg.load("../P1/Ressources/gimbal_wood.jpg");
     Q_ASSERT(!texImg.isNull());
     if (!texImg.isNull())
     {
         qDebug() << "Textur geladen!";
     }
-
     glEnable(GL_TEXTURE_2D);
     glTex = new QOpenGLTexture(texImg);
     glGenTextures(1, &m_tex);
     glBindTexture(GL_TEXTURE_2D, m_tex);
 
     glEnable(GL_BLEND);
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_BACK);
+
+    glEnable(GL_DEPTH_TEST);
+
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, texImg.width(), texImg.height(), 0, GL_BGRA, GL_UNSIGNED_BYTE, texImg.bits());
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vert), vert, GL_STATIC_DRAW);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 
     m_prog = new QOpenGLShaderProgram();
     m_prog->addShaderFromSourceFile(QOpenGLShader::Vertex, "../P1/sample.vert");
-    m_prog->addShaderFromSourceFile(QOpenGLShader::Fragment, "../P1/sample_alpha.frag");
+    m_prog->addShaderFromSourceFile(QOpenGLShader::Fragment, "../P1/sample.frag");
     m_prog->link();
     Q_ASSERT(m_prog->isLinked());
     if (m_prog->isLinked())
@@ -233,35 +180,71 @@ void MyGLWidget::initializeGL()
     Q_ASSERT(m_prog1->isLinked());
     if (m_prog1->isLinked())
     {
-        qDebug() << "Program-1 linked!";
+        qDebug() << "Program 1 linked!";
     }
+
+    m_prog2 = new QOpenGLShaderProgram();
+    m_prog2->addShaderFromSourceFile(QOpenGLShader::Vertex, "../P1/sample.vert");
+    m_prog2->addShaderFromSourceFile(QOpenGLShader::Fragment, "../P1/sample.frag");
+    m_prog2->link();
+    Q_ASSERT(m_prog2->isLinked());
+    if (m_prog2->isLinked())
+    {
+        qDebug() << "Program 2 linked!";
+    }
+
+    m_gimbal1.initGL("../P1/Ressources/gimbal.obj");
+    m_gimbal2.initGL("../P1/Ressources/gimbal.obj");
+    m_gimbal3.initGL("../P1/Ressources/gimbal.obj");
 }
 
 void MyGLWidget::paintGL()
 {
-    glClear(GL_COLOR_BUFFER_BIT);
+    QMatrix4x4 Model1, Model2, Model3;
+    QVector3D color;
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glBindVertexArray(m_vao);
+    Model1 = mModel;
+    Model2 = mModel;
+    Model3 = mModel;
 
+    Model1.rotate(m_RotationA*m_time, 1.0f, 0.0f, 0.0f);
+    Model2.rotate(m_RotationB*m_time, 0.0f, 1.0f, 0.0f);
+    Model3.rotate(m_RotationC*m_time, 1.0f, 0.0f, 0.0f);
+
+    color = {255.f, 0.f, 0.f};
     m_prog->bind();
-    m_prog->setUniformValue(0, m_Alpha);
-    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
+    m_prog->setUniformValue(0, mCamera);
+    m_prog->setUniformValue(1, mProjection);
+    m_prog->setUniformValue(2, Model1);
+    m_prog->setUniformValue(5, color);
+    m_prog->setUniformValue(6, 0);
+    m_gimbal1.drawElements();
 
+    Model2.scale(0.7f, 0.7f, 0.7f);
+    color = {0.f, 255.f, 0.f};
+    Model2 *= Model1;
     m_prog1->bind();
-//    GLuint timeLocation = m_prog1->uniformLocation("time");
-//   m_prog1->setUniformValue(timeLocation, m_time);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_tex);
+    m_prog1->setUniformValue(0, mCamera);
+    m_prog1->setUniformValue(1, mProjection);
+    m_prog1->setUniformValue(2, Model2);
+    m_prog1->setUniformValue(5, color);
     m_prog1->setUniformValue(6, 0);
-    float posOffset = m_RotationB / 100.f;
-    m_prog1->setUniformValue(7, posOffset);
+    m_gimbal2.drawElements();
 
-    //glDrawArrays(GL_TRIANGLES, 0, 3);
-    void* const offset = reinterpret_cast<void* const>(sizeof(GLuint)*3);
-    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, offset);
+    Model3.scale(0.5f, 0.5f, 0.5f);
+    color = {0.f, 0.f, 255.f};
+    Model3 *= Model2;
+    m_prog2->bind();
+    m_prog2->setUniformValue(0, mCamera);
+    m_prog2->setUniformValue(1, mProjection);
+    m_prog2->setUniformValue(2, Model3);
+    m_prog2->setUniformValue(5, color);
+    m_prog2->setUniformValue(6, 0);
+    m_gimbal3.drawElements();
 
     update();
-    m_time += 0.01f;
+    m_time += 0.1f;
 }
 
 void MyGLWidget::resizeGL(int w, int h)

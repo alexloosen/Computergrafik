@@ -1,2 +1,6 @@
 *.zip
 *.mkv
+P1/assimp-mingw_w64-5.01/
+P1/assimp-mingw32-4.1.0/
+P1/build-P1-Desktop_Qt_5_14_2_MinGW_64_bit-Debug/debug/model.o
+P1/build-P1-Desktop_Qt_5_14_2_MinGW_64_bit-Debug/
