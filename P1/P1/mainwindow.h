@@ -15,9 +15,11 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+public slots:
+    void reset();
+
 private slots:
     void on_openGLWidget_windowIconChanged(const QIcon &icon);
-
     void on_openGLWidget_aboutToCompose();
 
 private:

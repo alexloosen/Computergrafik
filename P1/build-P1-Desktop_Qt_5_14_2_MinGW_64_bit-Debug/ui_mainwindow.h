@@ -55,8 +55,6 @@ public:
     QLabel *labelNear;
     QDoubleSpinBox *dsbNear;
     QDoubleSpinBox *dsbFar;
-    QFormLayout *flControlButtons;
-    QPushButton *fbReset;
     QHBoxLayout *Sliders;
     QVBoxLayout *Slider2;
     QSlider *vsFOV;
@@ -66,6 +64,9 @@ public:
     QSlider *vsAngle;
     QLabel *LabelAngle;
     QSpinBox *spAngle;
+    QFormLayout *flControlButtons;
+    QPushButton *fbReset;
+    QPushButton *fbInitializeTest;
     QWidget *horizontalLayoutWidget_3;
     QHBoxLayout *Window;
     MyGLWidget *openGLWidget;
@@ -84,7 +85,7 @@ public:
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         horizontalLayoutWidget = new QWidget(centralwidget);
         horizontalLayoutWidget->setObjectName(QString::fromUtf8("horizontalLayoutWidget"));
-        horizontalLayoutWidget->setGeometry(QRect(10, 10, 191, 581));
+        horizontalLayoutWidget->setGeometry(QRect(10, 10, 171, 581));
         hlMain = new QHBoxLayout(horizontalLayoutWidget);
         hlMain->setObjectName(QString::fromUtf8("hlMain"));
         hlMain->setContentsMargins(0, 0, 0, 0);
@@ -138,6 +139,7 @@ public:
         sizePolicy2.setHeightForWidth(hsRotationA->sizePolicy().hasHeightForWidth());
         hsRotationA->setSizePolicy(sizePolicy2);
         hsRotationA->setMinimumSize(QSize(0, 0));
+        hsRotationA->setMaximum(100);
         hsRotationA->setOrientation(Qt::Horizontal);
 
         Rotations->setWidget(4, QFormLayout::FieldRole, hsRotationA);
@@ -209,16 +211,6 @@ public:
 
         vbControls->addWidget(gbClipping_2);
 
-        flControlButtons = new QFormLayout();
-        flControlButtons->setObjectName(QString::fromUtf8("flControlButtons"));
-        fbReset = new QPushButton(vbControls_2);
-        fbReset->setObjectName(QString::fromUtf8("fbReset"));
-
-        flControlButtons->setWidget(0, QFormLayout::LabelRole, fbReset);
-
-
-        vbControls->addLayout(flControlButtons);
-
         Sliders = new QHBoxLayout();
         Sliders->setObjectName(QString::fromUtf8("Sliders"));
         Slider2 = new QVBoxLayout();
@@ -278,12 +270,27 @@ public:
 
         vbControls->addLayout(Sliders);
 
+        flControlButtons = new QFormLayout();
+        flControlButtons->setObjectName(QString::fromUtf8("flControlButtons"));
+        fbReset = new QPushButton(vbControls_2);
+        fbReset->setObjectName(QString::fromUtf8("fbReset"));
+
+        flControlButtons->setWidget(0, QFormLayout::LabelRole, fbReset);
+
+        fbInitializeTest = new QPushButton(vbControls_2);
+        fbInitializeTest->setObjectName(QString::fromUtf8("fbInitializeTest"));
+
+        flControlButtons->setWidget(1, QFormLayout::LabelRole, fbInitializeTest);
+
+
+        vbControls->addLayout(flControlButtons);
+
 
         hlMain->addWidget(vbControls_2);
 
         horizontalLayoutWidget_3 = new QWidget(centralwidget);
         horizontalLayoutWidget_3->setObjectName(QString::fromUtf8("horizontalLayoutWidget_3"));
-        horizontalLayoutWidget_3->setGeometry(QRect(220, 10, 561, 581));
+        horizontalLayoutWidget_3->setGeometry(QRect(190, 10, 591, 581));
         Window = new QHBoxLayout(horizontalLayoutWidget_3);
         Window->setSpacing(0);
         Window->setObjectName(QString::fromUtf8("Window"));
@@ -295,7 +302,8 @@ public:
         sizePolicy3.setVerticalStretch(0);
         sizePolicy3.setHeightForWidth(openGLWidget->sizePolicy().hasHeightForWidth());
         openGLWidget->setSizePolicy(sizePolicy3);
-        openGLWidget->setMinimumSize(QSize(580, 480));
+        openGLWidget->setMinimumSize(QSize(560, 480));
+        openGLWidget->setMaximumSize(QSize(560, 16777215));
 
         Window->addWidget(openGLWidget);
 
@@ -318,9 +326,10 @@ public:
         rbOrthogonal->setText(QCoreApplication::translate("MainWindow", "Orthogonal", nullptr));
         labelFar->setText(QCoreApplication::translate("MainWindow", "Far", nullptr));
         labelNear->setText(QCoreApplication::translate("MainWindow", "Near", nullptr));
-        fbReset->setText(QCoreApplication::translate("MainWindow", "Reset", nullptr));
         LabelFOV->setText(QCoreApplication::translate("MainWindow", "Field of View", nullptr));
         LabelAngle->setText(QCoreApplication::translate("MainWindow", "Angle", nullptr));
+        fbReset->setText(QCoreApplication::translate("MainWindow", "Reset", nullptr));
+        fbInitializeTest->setText(QCoreApplication::translate("MainWindow", "Reset", nullptr));
     } // retranslateUi
 
 };

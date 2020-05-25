@@ -25,7 +25,7 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>191</width>
+      <width>171</width>
       <height>581</height>
      </rect>
     </property>
@@ -115,6 +115,9 @@
                  <height>0</height>
                 </size>
                </property>
+               <property name="maximum">
+                <number>100</number>
+               </property>
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -188,17 +191,6 @@
            </item>
           </layout>
          </widget>
-        </item>
-        <item>
-         <layout class="QFormLayout" name="flControlButtons">
-          <item row="0" column="0">
-           <widget class="QPushButton" name="fbReset">
-            <property name="text">
-             <string>Reset</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
         </item>
         <item>
          <layout class="QHBoxLayout" name="Sliders">
@@ -284,6 +276,24 @@
           </item>
          </layout>
         </item>
+        <item>
+         <layout class="QFormLayout" name="flControlButtons">
+          <item row="0" column="0">
+           <widget class="QPushButton" name="fbReset">
+            <property name="text">
+             <string>Reset</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QPushButton" name="fbInitializeTest">
+            <property name="text">
+             <string>Reset</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
        </layout>
       </widget>
      </item>
@@ -292,9 +302,9 @@
    <widget class="QWidget" name="horizontalLayoutWidget_3">
     <property name="geometry">
      <rect>
-      <x>220</x>
+      <x>190</x>
       <y>10</y>
-      <width>561</width>
+      <width>591</width>
       <height>581</height>
      </rect>
     </property>
@@ -312,8 +322,14 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>580</width>
+         <width>560</width>
          <height>480</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>560</width>
+         <height>16777215</height>
         </size>
        </property>
       </widget>
@@ -327,16 +343,6 @@
    <class>MyGLWidget</class>
    <extends>QOpenGLWidget</extends>
    <header location="global">myglwidget.h</header>
-   <slots>
-    <slot>setFOV()</slot>
-    <slot>setAngle()</slot>
-    <slot>setProjectionMode()</slot>
-    <slot>setNear()</slot>
-    <slot>setFar()</slot>
-    <slot>setRotationA()</slot>
-    <slot>setRotationB()</slot>
-    <slot>setRotationC()</slot>
-   </slots>
   </customwidget>
  </customwidgets>
  <resources/>
@@ -348,12 +354,12 @@
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>27</x>
-     <y>501</y>
+     <x>40</x>
+     <y>410</y>
     </hint>
     <hint type="destinationlabel">
-     <x>35</x>
-     <y>570</y>
+     <x>48</x>
+     <y>460</y>
     </hint>
    </hints>
   </connection>
@@ -364,28 +370,12 @@
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>120</x>
-     <y>529</y>
+     <x>126</x>
+     <y>410</y>
     </hint>
     <hint type="destinationlabel">
-     <x>160</x>
-     <y>581</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>vsFOV</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>openGLWidget</receiver>
-   <slot>setFOV()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>17</x>
-     <y>526</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>367</x>
-     <y>383</y>
+     <x>167</x>
+     <y>460</y>
     </hint>
    </hints>
   </connection>
