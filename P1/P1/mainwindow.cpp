@@ -13,6 +13,8 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(ui->hsRotationA, &QSlider::valueChanged, ui->openGLWidget, &MyGLWidget::setRotationA);
     QObject::connect(ui->hsRotationB, &QSlider::valueChanged, ui->openGLWidget, &MyGLWidget::setRotationB);
     QObject::connect(ui->hsRotationC, &QSlider::valueChanged, ui->openGLWidget, &MyGLWidget::setRotationC);
+    QObject::connect(ui->cbIsAnimated, &QCheckBox::stateChanged , ui->openGLWidget, &MyGLWidget::setIsAnimated);
+    QObject::connect(ui->cbFixedCam, &QCheckBox::stateChanged , ui->openGLWidget, &MyGLWidget::setFixedCam);
     QObject::connect(ui->dsbFar, QOverload<double>::of(&QDoubleSpinBox::valueChanged), ui->openGLWidget, &MyGLWidget::setFar);
     QObject::connect(ui->dsbNear, QOverload<double>::of(&QDoubleSpinBox::valueChanged), ui->openGLWidget, &MyGLWidget::setNear);
     QObject::connect(ui->vsFOV, &QSlider::valueChanged, ui->openGLWidget, &MyGLWidget::setFOV);

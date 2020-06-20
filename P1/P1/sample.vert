@@ -19,5 +19,5 @@ void main()
     vTexPosition = aTexPosition;
 
     vec4 pos = vec4(aPosition, 1.0);
-    gl_Position = pos * uModel * uCamera;// * uProjection; //* uProjection * uCamera * uModel;
+    gl_Position = uProjection * uCamera * uModel * pos;
 }

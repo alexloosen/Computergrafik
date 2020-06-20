@@ -11,7 +11,9 @@
 #include <QOpenGLShader>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
+#include <qelapsedtimer.h>
 
+#include "skybox.h"
 #include "model.h"
 
 class MyGLWidget : public QOpenGLWidget, private QOpenGLFunctions_3_3_Core
@@ -27,6 +29,8 @@ public slots:
     void setRotationA(int value);
     void setRotationB(int value);
     void setRotationC(int value);
+    void setIsAnimated();
+    void setFixedCam();
 
 signals:
     void incrementNear(int value);
@@ -37,6 +41,7 @@ public:
     ~MyGLWidget();
     MyGLWidget(QWidget *parent):QOpenGLWidget(parent){
         setFocusPolicy(Qt::StrongFocus);
+        timer.start();
     }
 
     QString toString();
@@ -49,7 +54,7 @@ private:
     int m_FOV = 90;
     int m_Angle;
     bool m_ProjectionMode;
-    double m_Far = 12;
+    double m_Far = 90;
     double m_Near = 1;
     int m_RotationA;
     int m_RotationB;
@@ -58,6 +63,8 @@ private:
     float m_Alpha;
 
     float m_time;
+
+    QElapsedTimer timer;
 
     QVector3D cameraPos;
 
@@ -71,6 +78,7 @@ private:
     Model m_gimbal1;
     Model m_gimbal2;
     Model m_gimbal3;
+    Model m_sphere;
 
     QImage texImg;
     QOpenGLTexture *glTex;
@@ -80,10 +88,20 @@ private:
     QOpenGLShaderProgram *m_prog;
     QOpenGLShaderProgram *m_prog1;
     QOpenGLShaderProgram *m_prog2;
+    QOpenGLShaderProgram *m_prog3;
+
+    QMatrix4x4 Model4;
 
     QMatrix4x4 mCamera;
     QMatrix4x4 mProjection;
     QMatrix4x4 mModel;
+
+    QMatrix4x4 mAnchor;
+
+    Skybox* skybox;
+
+    bool isAnimated;
+    bool fixedCam;
 
     void keyPressEvent(QKeyEvent *event);
 };

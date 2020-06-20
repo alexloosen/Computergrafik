@@ -19,6 +19,8 @@ MyGLWidget::~MyGLWidget()
     delete m_prog;
     delete m_prog1;
 
+    delete skybox;
+
     doneCurrent();
 }
 
@@ -78,6 +80,16 @@ void MyGLWidget::setRotationC(int value)
     this->m_RotationC = value;
 }
 
+void MyGLWidget::setIsAnimated()
+{
+    isAnimated = !isAnimated;
+}
+
+void MyGLWidget::setFixedCam()
+{
+    fixedCam = !fixedCam;
+}
+
 void MyGLWidget::keyPressEvent(QKeyEvent *event)
 {
     if(event->key() == Qt::Key_Escape)
@@ -88,22 +100,37 @@ void MyGLWidget::keyPressEvent(QKeyEvent *event)
     else
     {
         QOpenGLWidget::keyPressEvent(event);
+       // qDebug() << "Model" << mModel;
 
         if(event->key() == Qt::Key_W || event->key() == Qt::Key_Up)
         {
             cameraPos.setX(cameraPos.x() + 0.2);
+            mCamera.rotate(5, 1.0f, 0.0f, 0.0f);
         }
         else if(event->key() == Qt::Key_A || event->key() == Qt::Key_Left)
         {
             cameraPos.setZ(cameraPos.z() - 0.2);
+            mCamera.rotate(5, 0.0f, 1.0f, 0.0f);
         }
         else if(event->key() == Qt::Key_S || event->key() == Qt::Key_Down)
         {
             cameraPos.setX(cameraPos.x() - 0.2);
+            mCamera.rotate(5, -1.0f, 0.0f, 0.0f);
         }
         else if(event->key() == Qt::Key_D || event->key() == Qt::Key_Right)
         {
             cameraPos.setZ(cameraPos.z() + 0.2);
+            mCamera.rotate(5, 0.0f, -1.0f, 0.0f);
+        }
+        else if(event->key() == Qt::Key_Q || event->key() == Qt::Key_Right)
+        {
+            cameraPos.setZ(cameraPos.z() + 0.2);
+            mCamera.translate(0.0f, 0.0f, 0.10f);
+        }
+        else if(event->key() == Qt::Key_E || event->key() == Qt::Key_Right)
+        {
+            cameraPos.setZ(cameraPos.z() + 0.2);
+            mCamera.translate(0.0f, 0.0f, -0.10f);
         }
         qDebug() << "X: " + QString::number(cameraPos.x()) + " Z: " + QString::number(cameraPos.z());
     }
@@ -120,14 +147,13 @@ void MyGLWidget::initializeGL()
     glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    float aspectRatio = float(width())/float(height());
-    mProjection.perspective(m_FOV, aspectRatio, m_Near, m_Far);
+    mProjection.perspective(m_FOV, 1, m_Near, m_Far);
     qDebug() << "ProjectionMatrix: " << mProjection;
 
-    mCamera.translate(0.f, 0.f, 0.f);
+    mCamera.translate(0.0f, 0.0f, -2.0f);
     qDebug() << "CameraPosition:" << mCamera;
 
-    //mModel.translate(1.0f, 1.0f, 1.0f);
+    mModel.translate(0.0f, 0.0f, 0.0f);
     qDebug() << "ModelMatrix:" << mModel;
 
     mModel.scale(0.9f, 0.9f, 0.9f);
@@ -135,7 +161,7 @@ void MyGLWidget::initializeGL()
     mCamera *= mModel;
 
     QImage texImg;
-    texImg.load("../P1/Ressources/gimbal_wood.jpg");
+    texImg.load("../P1/Resources/gimbal_wood.jpg");
     Q_ASSERT(!texImg.isNull());
     if (!texImg.isNull())
     {
@@ -147,8 +173,8 @@ void MyGLWidget::initializeGL()
     glBindTexture(GL_TEXTURE_2D, m_tex);
 
     glEnable(GL_BLEND);
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_BACK);
+    //glEnable(GL_CULL_FACE);
+    //glEnable(GL_BACK);
 
     glEnable(GL_DEPTH_TEST);
 
@@ -193,25 +219,62 @@ void MyGLWidget::initializeGL()
         qDebug() << "Program 2 linked!";
     }
 
-    m_gimbal1.initGL("../P1/Ressources/gimbal.obj");
-    m_gimbal2.initGL("../P1/Ressources/gimbal.obj");
-    m_gimbal3.initGL("../P1/Ressources/gimbal.obj");
+    m_gimbal1.initGL("../P1/Resources/gimbal.obj");
+    m_gimbal2.initGL("../P1/Resources/gimbal.obj");
+    m_gimbal3.initGL("../P1/Resources/gimbal.obj");
+    m_sphere.initGL("../P1/Resources/sphere.obj");
+
+    skybox = new Skybox();
+
+    Model4 = mModel;
+    Model4.scale(0.05f, 0.05f, 0.05f);
+    Model4.translate(-25.f, 8.0f, 0.0f);
+    qDebug() << "Model4" << Model4;
 }
 
 void MyGLWidget::paintGL()
 {
     QMatrix4x4 Model1, Model2, Model3;
+    QMatrix4x4 sphereModel;
     QVector3D color;
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    skybox->render(mProjection, mCamera);
 
     Model1 = mModel;
     Model2 = mModel;
     Model3 = mModel;
+    sphereModel = mModel;
 
-    Model1.rotate(m_RotationA*m_time, 1.0f, 0.0f, 0.0f);
-    Model2.rotate(m_RotationB*m_time, 0.0f, 1.0f, 0.0f);
-    Model3.rotate(m_RotationC*m_time, 1.0f, 0.0f, 0.0f);
+    float delta = (timer.elapsed() - m_time) / 1000;
 
+    float rotSpeed1 = 20.0f;
+    float rotSpeed2 = 40.0f;
+    float rotSpeed3 = 60.0f;
+    if (isAnimated){
+        Model1.rotate(rotSpeed1*delta, 1.0f, 0.0f, 0.0f);
+        Model2.rotate(rotSpeed2*delta, 0.0f, 1.0f, 0.0f);
+        Model3.rotate(rotSpeed3*delta, 1.0f, 0.0f, 0.0f);
+    }
+    else{
+        Model1.rotate(m_RotationA*delta, 1.0f, 0.0f, 0.0f);
+        Model2.rotate(m_RotationB*delta, 0.0f, 1.0f, 0.0f);
+        Model3.rotate(m_RotationC*delta, 1.0f, 0.0f, 0.0f);
+
+    }
+    mAnchor.rotate(delta * 0.1f, 0.0f, 0.0f, 1.0f);
+
+    Model2 *= Model1;
+    Model3 *= Model2;
+
+    if (fixedCam){
+        mCamera = QMatrix4x4();
+        mCamera = Model3 * mCamera;
+    }
+    else{
+        mCamera = QMatrix4x4();
+        mCamera.translate(0.0f, 0.0f, -2.0f);
+    }
     color = {255.f, 0.f, 0.f};
     m_prog->bind();
     m_prog->setUniformValue(0, mCamera);
@@ -223,7 +286,6 @@ void MyGLWidget::paintGL()
 
     Model2.scale(0.7f, 0.7f, 0.7f);
     color = {0.f, 255.f, 0.f};
-    Model2 *= Model1;
     m_prog1->bind();
     m_prog1->setUniformValue(0, mCamera);
     m_prog1->setUniformValue(1, mProjection);
@@ -234,7 +296,6 @@ void MyGLWidget::paintGL()
 
     Model3.scale(0.5f, 0.5f, 0.5f);
     color = {0.f, 0.f, 255.f};
-    Model3 *= Model2;
     m_prog2->bind();
     m_prog2->setUniformValue(0, mCamera);
     m_prog2->setUniformValue(1, mProjection);
@@ -243,8 +304,17 @@ void MyGLWidget::paintGL()
     m_prog2->setUniformValue(6, 0);
     m_gimbal3.drawElements();
 
+    color = {255.f, 255.f, 255.f};
+    sphereModel = Model2 * mAnchor * Model4;
+    m_prog2->setUniformValue(0, mCamera);
+    m_prog2->setUniformValue(1, mProjection);
+    m_prog2->setUniformValue(2, sphereModel);
+    m_prog2->setUniformValue(5, color);
+    m_prog2->setUniformValue(6, 0);
+    m_sphere.drawElements();
+
     update();
-    m_time += 0.1f;
+    m_time += 1.f;
 }
 
 void MyGLWidget::resizeGL(int w, int h)

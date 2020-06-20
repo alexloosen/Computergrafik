@@ -11,6 +11,7 @@
 
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
+#include <QtWidgets/QCheckBox>
 #include <QtWidgets/QDoubleSpinBox>
 #include <QtWidgets/QFormLayout>
 #include <QtWidgets/QGroupBox>
@@ -44,6 +45,8 @@ public:
     QSlider *hsRotationA;
     QSlider *hsRotationB;
     QSlider *hsRotationC;
+    QCheckBox *cbIsAnimated;
+    QCheckBox *cbFixedCam;
     QGroupBox *gbProjection_2;
     QVBoxLayout *gbProjection;
     QRadioButton *rbPerspective;
@@ -155,6 +158,18 @@ public:
         hsRotationC->setOrientation(Qt::Horizontal);
 
         Rotations->setWidget(10, QFormLayout::FieldRole, hsRotationC);
+
+        cbIsAnimated = new QCheckBox(gbRotation);
+        cbIsAnimated->setObjectName(QString::fromUtf8("cbIsAnimated"));
+        cbIsAnimated->setLayoutDirection(Qt::RightToLeft);
+
+        Rotations->setWidget(0, QFormLayout::SpanningRole, cbIsAnimated);
+
+        cbFixedCam = new QCheckBox(gbRotation);
+        cbFixedCam->setObjectName(QString::fromUtf8("cbFixedCam"));
+        cbFixedCam->setLayoutDirection(Qt::RightToLeft);
+
+        Rotations->setWidget(1, QFormLayout::SpanningRole, cbFixedCam);
 
 
         gbRoation->addLayout(Rotations);
@@ -329,6 +344,8 @@ public:
         labelA->setText(QCoreApplication::translate("MainWindow", "Ring A", nullptr));
         labelB->setText(QCoreApplication::translate("MainWindow", "Ring B", nullptr));
         labelC->setText(QCoreApplication::translate("MainWindow", "Ring C", nullptr));
+        cbIsAnimated->setText(QCoreApplication::translate("MainWindow", "Animated", nullptr));
+        cbFixedCam->setText(QCoreApplication::translate("MainWindow", "fixed Camera", nullptr));
         rbPerspective->setText(QCoreApplication::translate("MainWindow", "Perspective", nullptr));
         rbOrthogonal->setText(QCoreApplication::translate("MainWindow", "Orthogonal", nullptr));
         labelFar->setText(QCoreApplication::translate("MainWindow", "Far", nullptr));

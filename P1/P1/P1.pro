@@ -35,10 +35,10 @@ win32 {
 }
 
 SOURCES += \
-    *.cpp
+    *.cpp \
 
 HEADERS += \
-    *.h
+    *.h \
 
 FORMS += \
     *.ui
