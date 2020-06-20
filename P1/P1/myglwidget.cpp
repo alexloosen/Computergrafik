@@ -219,23 +219,38 @@ void MyGLWidget::initializeGL()
         qDebug() << "Program 2 linked!";
     }
 
+    m_prog3 = new QOpenGLShaderProgram();
+    m_prog3->addShaderFromSourceFile(QOpenGLShader::Vertex, "../P1/light.vert");
+    m_prog3->addShaderFromSourceFile(QOpenGLShader::Fragment, "../P1/light.frag");
+    m_prog3->link();
+    Q_ASSERT(m_prog3->isLinked());
+    if (m_prog3->isLinked())
+    {
+        qDebug() << "Program 3 linked!";
+    }
+
     m_gimbal1.initGL("../P1/Resources/gimbal.obj");
     m_gimbal2.initGL("../P1/Resources/gimbal.obj");
     m_gimbal3.initGL("../P1/Resources/gimbal.obj");
     m_sphere.initGL("../P1/Resources/sphere.obj");
+    m_light.initGL("../P1/Resources/sphere.obj");
 
     skybox = new Skybox();
 
     Model4 = mModel;
     Model4.scale(0.05f, 0.05f, 0.05f);
     Model4.translate(-25.f, 8.0f, 0.0f);
-    qDebug() << "Model4" << Model4;
+
+    Model5 = mModel;
+    Model5.scale(0.1f, 0.1f, 0.1f);
+    Model5.translate(-10.f, 10.0f, 0.0f);
 }
 
 void MyGLWidget::paintGL()
 {
+    QVector3D lightPos;
     QMatrix4x4 Model1, Model2, Model3;
-    QMatrix4x4 sphereModel;
+    QMatrix4x4 sphereModel, lightModel;
     QVector3D color;
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -244,7 +259,6 @@ void MyGLWidget::paintGL()
     Model1 = mModel;
     Model2 = mModel;
     Model3 = mModel;
-    sphereModel = mModel;
 
     float delta = (timer.elapsed() - m_time) / 1000;
 
@@ -263,55 +277,82 @@ void MyGLWidget::paintGL()
 
     }
     mAnchor.rotate(delta * 0.1f, 0.0f, 0.0f, 1.0f);
+    mLightAnchor.rotate(delta * 0.1f, 1.0f, 1.0f, 1.0f);
 
     Model2 *= Model1;
     Model3 *= Model2;
+
+    Model2.scale(0.7f, 0.7f, 0.7f);
+    Model3.scale(0.5f, 0.5f, 0.5f);
+    sphereModel = Model2 * mAnchor * Model4;
+    lightModel = mLightAnchor * Model5;
+    float lightX, lightY, lightZ;
+    lightX = lightModel.column(3).x();
+    lightY = lightModel.column(3).y();
+    lightZ = lightModel.column(3).z();
+
+    lightPos = QVector3D(-lightX, -lightY, -lightZ);
+    //lightPos = QMatrix4x4();
+    //lightPos.translate(0.0f, 0.0f, -2.0f);
 
     if (fixedCam){
         mCamera = QMatrix4x4();
         mCamera = Model3 * mCamera;
     }
-    else{
-        mCamera = QMatrix4x4();
-        mCamera.translate(0.0f, 0.0f, -2.0f);
-    }
-    color = {255.f, 0.f, 0.f};
+//    else{
+//        mCamera = QMatrix4x4();
+//        mCamera.translate(0.0f, 0.0f, -2.0f);
+//    }
+    QVector3D view = {0.0, 0.0, -2.0};
+    color = {1.f, 0.1f, 0.1f};
     m_prog->bind();
     m_prog->setUniformValue(0, mCamera);
     m_prog->setUniformValue(1, mProjection);
     m_prog->setUniformValue(2, Model1);
     m_prog->setUniformValue(5, color);
     m_prog->setUniformValue(6, 0);
+    m_prog->setUniformValue(8, view);
+    m_prog->setUniformValue(9, lightPos);
     m_gimbal1.drawElements();
 
-    Model2.scale(0.7f, 0.7f, 0.7f);
-    color = {0.f, 255.f, 0.f};
+    color = {0.1f, 1.f, 0.1f};
     m_prog1->bind();
     m_prog1->setUniformValue(0, mCamera);
     m_prog1->setUniformValue(1, mProjection);
     m_prog1->setUniformValue(2, Model2);
     m_prog1->setUniformValue(5, color);
     m_prog1->setUniformValue(6, 0);
+    m_prog1->setUniformValue(8, view);
+    m_prog1->setUniformValue(9, lightPos);
     m_gimbal2.drawElements();
 
-    Model3.scale(0.5f, 0.5f, 0.5f);
-    color = {0.f, 0.f, 255.f};
+    color = {0.1f, 0.f, 1.1f};
     m_prog2->bind();
     m_prog2->setUniformValue(0, mCamera);
     m_prog2->setUniformValue(1, mProjection);
     m_prog2->setUniformValue(2, Model3);
     m_prog2->setUniformValue(5, color);
     m_prog2->setUniformValue(6, 0);
+    m_prog2->setUniformValue(8, view);
+    m_prog2->setUniformValue(9, lightPos);
     m_gimbal3.drawElements();
 
-    color = {255.f, 255.f, 255.f};
-    sphereModel = Model2 * mAnchor * Model4;
+    color = {1.f, 1.f, 1.f};
     m_prog2->setUniformValue(0, mCamera);
     m_prog2->setUniformValue(1, mProjection);
     m_prog2->setUniformValue(2, sphereModel);
     m_prog2->setUniformValue(5, color);
     m_prog2->setUniformValue(6, 0);
+    m_prog2->setUniformValue(8, view);
+    m_prog2->setUniformValue(9, lightPos);
     m_sphere.drawElements();
+
+    color = {1.f, 1.f, 1.f};
+    m_prog3->setUniformValue(0, mCamera);
+    m_prog3->setUniformValue(1, mProjection);
+    m_prog3->setUniformValue(2, lightModel);
+    m_prog3->setUniformValue(3, color);
+    m_light.drawElements();
 
     update();
     m_time += 1.f;

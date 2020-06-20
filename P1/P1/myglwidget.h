@@ -79,6 +79,7 @@ private:
     Model m_gimbal2;
     Model m_gimbal3;
     Model m_sphere;
+    Model m_light;
 
     QImage texImg;
     QOpenGLTexture *glTex;
@@ -91,12 +92,14 @@ private:
     QOpenGLShaderProgram *m_prog3;
 
     QMatrix4x4 Model4;
+    QMatrix4x4 Model5;
 
     QMatrix4x4 mCamera;
     QMatrix4x4 mProjection;
     QMatrix4x4 mModel;
 
     QMatrix4x4 mAnchor;
+    QMatrix4x4 mLightAnchor;
 
     Skybox* skybox;
 
